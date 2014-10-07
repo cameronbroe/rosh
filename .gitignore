@@ -1,2 +1,5 @@
 # Ignore all Sublime files
 *sublime*
+
+# Ignore the binary
+rosh
