@@ -1,4 +1,5 @@
 #include "input.h"
+//#include "alias.h"
 #include <string.h>
 
 char** strsplit(char* string, char* split) {
@@ -14,7 +15,7 @@ char** strsplit(char* string, char* split) {
 			exit(-1);
 		}
 		arr[count-1] = p;
-		p = strtok(NULL, " ");
+		p = strtok(NULL, split);
 	}
 
 	// Allocate a space for the end

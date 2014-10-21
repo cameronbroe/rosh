@@ -9,6 +9,7 @@
 // Local includes
 #include "env.h"
 #include "input.h"
+#include "alias.h"
 
 shell_env env;
 
@@ -37,7 +38,7 @@ void shell_exec(char* command, char** argv) {
 	}
 }
 
-int main(int argc, int argv) {
+int main(int argc, char** argv) {
 	system("clear"); // Clear the terminal
 	load_env(&env, NULL);
 	char* input = malloc(1024 * sizeof(char)); // Allocate a kilobyte of memory for the input for the shell, this should be sufficient for commands
@@ -68,8 +69,36 @@ int main(int argc, int argv) {
 			continue;
 		}
 
+		if(strcmp(arr[0], "alias") == 0) {
+			if(arr[1] == NULL) {
+				list_aliases();
+				continue;
+			}
+			//fprintf(stderr, "ERROR: not implemented yet\n");
+			//continue;
+
+			char** a_parse = malloc(sizeof(arr[1]));
+			a_parse = strsplit(arr[1], "=");
+			char* a_key = a_parse[0];
+			arr[1] = a_parse[1]; // Replace the first part of cmd with the part after the = sign
+			++arr; // Increment the array to get rid of the "alias"
+			//printf("Defining alias with key: %s\n", a_parse[0]);
+			//printf("Command: %s\n", arr[0]);
+			define_alias(a_key, arr);
+			continue;
+		}
+
 		// Try to exec
-		shell_exec(arr[0], arr);
+		//printf("DEBUG: %s\n", arr[0]);
+		alias_t a = (alias_t) get_alias(arr[0]);
+		//printf("ALIAS VALID?: %d\n", a.valid_alias);
+		if(a.valid_alias != -1) {
+			char** a_arr = malloc(1024 * 1024);
+			a_arr = strsplit(a.cmd[0], " ");
+			shell_exec(a_arr[0], a.cmd);
+		} else {
+			shell_exec(arr[0], arr);
+		}
 		//printf("COMMAND: %s\n", arr[0]);
 	} while(strcmp("exit", input) != 0);
 	return 0;
