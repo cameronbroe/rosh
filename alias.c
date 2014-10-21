@@ -10,7 +10,8 @@ void define_alias(char* key, char** cmd) {
   alias_t test;
   test = get_alias(key);
   if(test.valid_alias != -1) {
-    fprintf(stderr, "Alias already defined with key: %s\n", key);
+    //fprintf(stderr, "Alias already defined with key: %s\n", key);
+    modify_alias(key, cmd);
     return;
   }
   alias_t a;
@@ -23,15 +24,15 @@ void define_alias(char* key, char** cmd) {
 }
 
 void modify_alias(char* key, char** cmd) {
-  alias_t test;
+  /*alias_t test;
   test = get_alias(key);
   if(test.key = NULL) {
     define_alias(key, cmd);
     return;
-  }
+  }*/
   alias_t a;
   a.key = key;
-  a.cmd = malloc(sizeof(cmd));
+  //a.cmd = malloc(sizeof(cmd));
   a.cmd = cmd;
   int alias_index = get_alias_index(key);
   //aliases[alias_index] = realloc(&aliases[alias_index], sizeof(a));
