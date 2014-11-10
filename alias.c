@@ -32,7 +32,7 @@ void modify_alias(char* key, char** cmd) {
   }*/
   alias_t a;
   a.key = key;
-  //a.cmd = malloc(sizeof(cmd));
+  a.cmd = realloc(a.cmd, sizeof(cmd));
   a.cmd = cmd;
   int alias_index = get_alias_index(key);
   //aliases[alias_index] = realloc(&aliases[alias_index], sizeof(a));

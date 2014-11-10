@@ -3,3 +3,9 @@
 
 # Ignore the binary
 rosh
+test
+
+# Ignore things involving parser generation
+parse.tab.c
+parse.tab.h
+lex.yy.cc
