@@ -3,7 +3,8 @@
 
 # Ignore the binary
 rosh
-test
+test_math
+test_str
 
 # Ignore things involving parser generation
 parse.tab.c

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "parse.tab.h"
 extern YYSTYPE yylval;
 
@@ -13,11 +14,11 @@ extern YYSTYPE yylval;
 delim [ \t]
 whitesp {delim}+
 digit [0-9]
-alpha [a-zA-Z]*
+alpha .*
 number [-]?{digit}*[.]?{digit}+
 %%
 
-{number} { sscanf(yytext, "%i", &yylval); return NUMBER; }
+{number} { sscanf(yytext, "%lf", &yylval); return NUMBER; }
 "+" { return PLUS; }
 "-" { return MINUS; }
 "/" { return DIVIDE; }
@@ -28,4 +29,10 @@ number [-]?{digit}*[.]?{digit}+
 "\n" { return NEWLINE; }
 "#((" { return OPEN_MATH; }
 "))" { return END_MATH; }
+"sin(" { return SINE; }
+"cos(" { return COSINE; }
+"tan(" { return TANGENT; }
+"^" { return EXP; }
 {whitesp} { }
+\"{alpha}\" { return DOUBLE_STR; }
+'{alpha}' { return SINGLE_STR; }
