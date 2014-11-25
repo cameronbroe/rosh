@@ -3,6 +3,8 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <math.h>
+
+double result;
 %}
 
 %token DOUBLE_STR SINGLE_STR NEWLINE NUMBER PLUS MINUS DIVIDE MULTIPLY MODULUS LPAREN RPAREN OPEN_MATH END_MATH ALPHA
@@ -14,11 +16,10 @@ input:
   | input line
   ;
 
-line: NEWLINE
-  | expr NEWLINE { printf("Output: \t%lf\n",$1); }
+line: expr { $$ = $1; result = $1; }
   ;
 
-expr: OPEN_MATH math_expr END_MATH { $$ = $2; }
+expr: math_expr { $$ = $1; }
   ;
 
 math_expr: math_expr PLUS term { $$ = $1 + $3; }
@@ -47,9 +48,11 @@ int yyerror(char *s) {
   printf("%s\n", s);
   return(0);
 }
-
+/*
 int main(void) {
-  printf("Input: ");
-  yyparse();
+  char input[1024] = "10/20";
+  yy_scan_string(input);
+  char* res = yyparse();
   exit(0);
 }
+*/

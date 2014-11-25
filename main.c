@@ -6,12 +6,16 @@
 #include <sys/types.h>
 #include <signal.h>
 
+// Flex and Bison include
+#include "parse.tab.h"
+
 // Local includes
 #include "env.h"
 #include "input.h"
 #include "alias.h"
 
 shell_env env;
+extern double result;
 
 void ignore_sigint() {
 	signal(SIGINT, SIG_IGN);
@@ -38,6 +42,47 @@ void shell_exec(char* command, char** argv) {
 	}
 }
 
+char* parse_math(char* input) {
+	char* cp = input;
+	int strpos = 0;
+	int math_flag = 0;
+	int start, end;
+	while(*cp != '\0') {
+		if(strpos < strlen(input)) {
+			if(!(*(cp+1) == '\0') && *cp == '#' && *(cp+1) == '{') {
+				start = strpos+2;
+				math_flag = 1;
+			}
+		}
+		if(math_flag == 1 && *cp == '}') {
+			end = strpos;
+			char* buf = malloc(sizeof(char) * 1024);
+			math_flag = 0;
+			strncpy(buf, input+start, end-start);
+			yy_scan_string(buf);
+			yyparse();
+			char* rep = input + start;
+			char* new = malloc(sizeof(char) * strlen(input) + 1);
+			int new_pos = 0;
+			strncpy(new, input, start-2);
+			new_pos = start;
+			char* double_str = malloc(sizeof(char) * 1024);
+			sprintf(double_str, "%.0f", result);
+			//printf("%s\n", double_str);
+			new_pos += strlen(double_str);
+			strcat(new, double_str);
+			int end_c = (input+strlen(input)) - (input+end);
+			strcat(new, strncpy(new+new_pos, input+end+1, end_c));
+			input = new;
+			cp = new + strpos;
+
+		}
+		strpos++;
+		cp++;
+	}
+	return input;
+}
+
 int main(int argc, char** argv) {
 	system("clear"); // Clear the terminal
 	load_env(&env, NULL);
@@ -55,6 +100,8 @@ int main(int argc, char** argv) {
 	do {
 		printf("%s%s: ", env.prompt, env.pwd);
 		gets(input);
+		// Parse math first
+		input = parse_math(input);
 		char* split = " ";
 		char **arr = malloc(1024 * 1024);
 		arr = strsplit(input, split);
