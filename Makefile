@@ -6,12 +6,14 @@ FLEX=flex
 all : main.c env.c input.c alias.c
 	$(BISON) -d parse.y
 	$(FLEX) parse.lex
-	$(CC) -o $(TARGET) main.c env.c input.c alias.c parse.tab.c lex.yy.c -lfl -lm
+	$(CC) -o $(TARGET) main.c env.c input.c alias.c export.c parse.tab.c lex.yy.c -lfl -lm
+	rm parse.tab.c parse.tab.h lex.yy.c
 
 debug : main.c env.c input.c alias.c
 	$(BISON) -d parse.y
 	$(FLEX) parse.lex
-	$(CC) -g -o $(TARGET)  main.c env.c input.c alias.c parse.tab.c lex.yy.c -lfl -lm
+	$(CC) -g -o $(TARGET)  main.c env.c input.c alias.c export.c parse.tab.c lex.yy.c -lfl -lm
+	rm parse.tab.c parse.tab.h lex.yy.c
 
 test_math :
 	$(BISON) -d parse.y

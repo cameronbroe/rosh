@@ -13,6 +13,7 @@
 #include "env.h"
 #include "input.h"
 #include "alias.h"
+#include "export.h"
 
 shell_env env;
 extern double result;
@@ -43,6 +44,7 @@ void shell_exec(char* command, char** argv) {
 }
 
 char* parse_math(char* input) {
+	char* start_of = input; // This will stay the same
 	char* cp = input;
 	int strpos = 0;
 	int math_flag = 0;
@@ -72,10 +74,58 @@ char* parse_math(char* input) {
 			new_pos += strlen(double_str);
 			strcat(new, double_str);
 			int end_c = (input+strlen(input)) - (input+end);
-			strcat(new, strncpy(new+new_pos, input+end+1, end_c));
+			char* end_str = malloc(sizeof(char) * strlen(input) + 1);
+			end_str = strncpy(end_str, input+end+1, end_c);
+			strcat(new, end_str);
 			input = new;
-			cp = new + strpos;
+			cp = new;
+			//printf("DEBUG: %s\n", cp);
+			strpos = 0;
+		}
+		strpos++;
+		cp++;
+	}
+	return input;
+}
 
+char* parse_vars(char* input) {
+	char* start_of = input; // This will stay the same
+	char* cp = input;
+	int strpos = 0;
+	int var_flag = 0;
+	int start, end;
+	while(*cp != '\0') {
+		if(strpos < strlen(input)) {
+			if(*cp == '$') {
+				start = strpos+1;
+				var_flag = 1;
+			}
+		}
+		if(var_flag == 1 && (*cp == ' ' || *(cp+1) == '\0')) {
+			end = strpos;
+			if(*(cp+1) == '\0') {
+				end++; // We have an off by one error if checking for next value is null
+			}
+			char* buf = malloc(sizeof(char) * 1024);
+			strncpy(buf, input+start, end-start);
+			char* val_buf = get_variable(buf).val;
+			char* rep = input + (start - 1);
+			char* new = malloc(sizeof(char) * strlen(input) + 1);
+			int new_pos = 0;
+			strncpy(new, input, start - 1);
+			new_pos = start;
+			new_pos += strlen(val_buf);
+			strcat(new, val_buf);
+			//printf("%s\n", new);
+			int end_c = (input+strlen(input)) - (input + end);
+			char* end_str = malloc(sizeof(char) * strlen(input) + 1);
+			end_str = strncpy(end_str, input+end+1, end_c);
+			strcat(new, " ");
+			strcat(new, end_str);
+			var_flag = 0;
+			input = new;
+			cp = new;
+			strpos = 0;
 		}
 		strpos++;
 		cp++;
@@ -102,6 +152,7 @@ int main(int argc, char** argv) {
 		gets(input);
 		// Parse math first
 		input = parse_math(input);
+		input = parse_vars(input);
 		char* split = " ";
 		char **arr = malloc(1024 * 1024);
 		arr = strsplit(input, split);
@@ -132,6 +183,20 @@ int main(int argc, char** argv) {
 			//printf("Defining alias with key: %s\n", a_parse[0]);
 			//printf("Command: %s\n", arr[0]);
 			define_alias(a_key, arr);
+			continue;
+		}
+
+		if(strcmp(arr[0], "export") == 0) {
+			if(arr[1] == NULL) {
+				list_variables();
+				continue;
+			}
+			char* v_val = malloc(8192);
+			strcpy(v_val, arr[1]);
+			v_val = strchr(v_val, '=');
+			v_val++;
+			char* v_key = strtok(arr[1], "=");
+			define_variable(v_key, v_val);
 			continue;
 		}
 

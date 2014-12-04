@@ -32,7 +32,8 @@ void modify_variable(char* key, char* val) {
   }*/
   variable_t a;
   a.key = key;
-  a.val = realloc(a.val, sizeof(val));
+  char* val_ptr = a.val;
+  val_ptr = malloc(sizeof(val));
   a.val = val;
   int variable_index = get_variable_index(key);
   //variablees[variable_index] = realloc(&variablees[variable_index], sizeof(a));
